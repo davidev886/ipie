@@ -1,9 +1,10 @@
 from ipie.utils.mpi import make_splits_displacements
 import h5py
 import numpy as np
+import os
 
 
-def split_cholesky(ham_filename, nmembers):
+def split_cholesky(ham_filename, nmembers, chol_fname="chol"):
     #
     with h5py.File(ham_filename, "r") as source_file:
         dataset = source_file["LXmn"][()]  # pylint: disable=no-member
@@ -16,8 +17,8 @@ def split_cholesky(ham_filename, nmembers):
         print(i, size, displacement)
         row_start = displacement
         row_end = displacement + size
-
-        with h5py.File(f"chol_{i}.h5", "w") as target_file:
+        chol_fname = os.path.splitext(chol_fname)[0]
+        with h5py.File(f"{chol_fname}_{i}.h5", "w") as target_file:
             target_file.create_dataset("chol", data=dataset[:, row_start:row_end])
 
     # Done
